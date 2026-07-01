@@ -1,6 +1,6 @@
 {
   "name": "BluePeterDeparture",
-  "short_name": "Avgång",
+  "short_name": "BluePeterDeparture",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#06162b",
