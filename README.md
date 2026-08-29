@@ -1,14 +1,11 @@
-# BluePeterDeparture v2.6
+# BluePeterDeparture v2.6.1
 
-Privat avgångslarm för färjeleder.
+Korrigerad ljudversion byggd direkt på den fungerande v2.5-layouten och v2.5-logiken.
 
-## v2.6
-- Original-WAV från den tidigare Fredrika-appen.
-- `sound.wav` används vid 5 minuter kvar.
-- `short.wav` används vid avgång.
-- Testknapparna spelar exakt samma filer som de skarpa larmen.
-- Larm triggas endast en gång per avgång och återställs inte av 30-sekunders datauppdateringen.
-- Efter avgång visas 0 / -1 … -59 innan nästa avgång hämtas.
-- Versionsnummer visas alltid som `⚓ BluePeterDeparture v2.6`.
+- `short.wav` används för **Test 5 min** och det skarpa 5-minuterslarmet.
+- `sound.wav` används för **Test avgång** och det skarpa avgångslarmet.
+- Ledväljare, responsiv layout, Dag/Natt/Auto och Skärm vaken är oförändrade från v2.5.
+- Larmflaggorna återställs bara när avgången faktiskt ändras, inte vid 30-sekundersuppdateringen.
+- Synlig version: `⚓ BluePeterDeparture v2.6.1`.
 
-Ladda upp alla sex filer i samma rotmapp på GitHub Pages.
+Ladda upp samtliga sex filer till samma rotmapp på GitHub Pages.

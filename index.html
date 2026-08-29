@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-512.png" />
   <link rel="icon" href="icon-512.png" />
-  <title>BluePeterDeparture v2.6</title>
+  <title>BluePeterDeparture v2.6.1</title>
   <style>
     :root{
       --bg:#06162b; --panel:#0b213d; --panel2:#102b4c; --text:#f8fbff; --muted:#aac2dc;
@@ -99,19 +99,19 @@
       </section>
     </aside>
   </main>
-  <footer>⚓ BluePeterDeparture v2.6</footer>
+  <footer>⚓ BluePeterDeparture v2.6.1</footer>
 </div>
-<audio id="fiveAudio" preload="auto" playsinline src="sound.wav"></audio>
-<audio id="departureAudio" preload="auto" playsinline src="short.wav"></audio>
+<audio id="fiveAudio" preload="auto" playsinline src="short.wav"></audio>
+<audio id="departureAudio" preload="auto" playsinline src="sound.wav"></audio>
 <script>
 'use strict';
-const VERSION='v2.6';
+const VERSION='v2.6.1';
 const API_KEY='24b95262774241ad8dbaf8ab05cf070a';
 const API_URL='https://api.trafikinfo.trafikverket.se/v2/data.json';
 const DEFAULT_ROUTE_ID=19;
 let routeId=parseInt(localStorage.getItem('bpd_routeid')||DEFAULT_ROUTE_ID,10);
 let nextDeparture=null, currentAnnouncementKey='', fivePlayed=false, depPlayed=false;
-let postDepartureEndMs=0, wakeLock=null, lastDiffMs=null, isFetching=false, lastSwitchFetchAttemptMs=0;
+let postDepartureEndMs=0, wakeLock=null, lastDiffSec=null, isFetching=false;
 const el=id=>document.getElementById(id);
 const clockEl=el('clock'), routeNameEl=el('routeName'), fromHarborEl=el('fromHarbor'), countEl=el('count'), unitEl=el('unit'), nextTimeEl=el('nextTime'), labelEl=el('mainLabel'), apiStatusEl=el('apiStatus'), apiDotEl=el('apiDot'), routeIdTextEl=el('routeIdText'), soundStatusEl=el('soundStatus'), settingsEl=el('settings'), routeSelectEl=el('routeSelect');
 const dayBtn=el('dayBtn'), nightBtn=el('nightBtn'), autoBtn=el('autoBtn'), fiveAudio=el('fiveAudio'), departureAudio=el('departureAudio');
@@ -142,6 +142,7 @@ async function playAlarm(audio,label){
     return false;
   }
 }
+// Originalappen: short.wav = 5-minuterssignal, sound.wav = avgångssignal.
 function playFiveMinuteAlarm(){return playAlarm(fiveAudio,'5 min')}
 function playDepartureAlarm(){return playAlarm(departureAudio,'avgång')}
 async function apiRequest(xml){const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/xml'},body:xml}); if(!res.ok) throw new Error('API '+res.status); return await res.json()}
@@ -151,73 +152,47 @@ async function getRoutes(){
 async function getDeparture(force=false){
   if(isFetching) return;
   const nowMs=Date.now();
-  // Låt aldrig en rutinuppdatering skriva över aktuell avgång under de 60 sekunderna efter avgång.
-  if(!force && nextDeparture && nowMs>=nextDeparture.getTime() && nowMs<nextDeparture.getTime()+60000) return;
   if(!force && postDepartureEndMs && nowMs < postDepartureEndMs) return;
   isFetching=true;
   try{
     const xml='<REQUEST><LOGIN authenticationkey="'+API_KEY+'" /><QUERY limit="1" objecttype="FerryAnnouncement" schemaversion="1.2" orderby="DepartureTime"><FILTER><EQ name="Route.Id" value="'+routeId+'" /><GT name="DepartureTime" value="$now" /></FILTER><INCLUDE>DepartureTime</INCLUDE><INCLUDE>Route.Name</INCLUDE><INCLUDE>Route.Id</INCLUDE><INCLUDE>FromHarbor.Name</INCLUDE></QUERY></REQUEST>';
     const data=await apiRequest(xml); const a=data.RESPONSE.RESULT[0].FerryAnnouncement[0]; const key=a.DepartureTime+'-'+a.Route.Id;
-    if(key!==currentAnnouncementKey){currentAnnouncementKey=key; fivePlayed=false; depPlayed=false; postDepartureEndMs=0; lastDiffMs=null; lastSwitchFetchAttemptMs=0}
+    if(key!==currentAnnouncementKey){currentAnnouncementKey=key; fivePlayed=false; depPlayed=false; postDepartureEndMs=0; lastDiffSec=null}
     nextDeparture=new Date(a.DepartureTime);
     routeNameEl.textContent=a.Route.Name; fromHarborEl.textContent='Från '+a.FromHarbor.Name; nextTimeEl.textContent='Nästa avgång '+fmtHM(nextDeparture); routeIdTextEl.textContent=a.Route.Id;
     apiStatusEl.textContent='OK'; apiDotEl.classList.remove('red');
   }catch(e){apiStatusEl.textContent='Fel'; apiDotEl.classList.add('red'); console.warn(e)}
   finally{isFetching=false}
 }
-function triggerAlarms(diffMs){
-  // Trigga endast när tröskeln faktiskt passeras. Flaggorna återställs bara när avgången byts.
-  if(lastDiffMs!==null && lastDiffMs>300000 && diffMs<=300000 && diffMs>0 && !fivePlayed){
-    fivePlayed=true;
-    playFiveMinuteAlarm();
-  }
-  if(lastDiffMs!==null && lastDiffMs>0 && diffMs<=0 && !depPlayed){
-    depPlayed=true;
-    postDepartureEndMs=nextDeparture.getTime()+60000;
-    playDepartureAlarm();
-  }
-  // Om appen startas efter avgång ska den inte spela ett försenat avgångslarm.
-  if(lastDiffMs===null && diffMs<=0 && !depPlayed){
-    depPlayed=true;
-    postDepartureEndMs=nextDeparture.getTime()+60000;
-  }
+function triggerAlarms(diffSec){
+  if(lastDiffSec!==null && lastDiffSec>300 && diffSec<=300 && diffSec>0 && !fivePlayed){fivePlayed=true; playFiveMinuteAlarm()}
+  if(lastDiffSec!==null && lastDiffSec>0 && diffSec<=0 && !depPlayed){depPlayed=true; postDepartureEndMs=nextDeparture.getTime()+60000; playDepartureAlarm()}
+  if(lastDiffSec===null && diffSec<=0 && !depPlayed){depPlayed=true; postDepartureEndMs=nextDeparture.getTime()+60000}
 }
-function renderCountdown(diffMs){
-  const nowMs=Date.now();
-  if(diffMs<=0 && nowMs<nextDeparture.getTime()+60000){
-    const elapsedMs=Math.max(0,nowMs-nextDeparture.getTime());
-    labelEl.textContent=elapsedMs<1000?'Avgång':'Avgång passerad';
-    if(elapsedMs<1000){countEl.textContent='0'; unitEl.textContent='sekunder'}
-    else{countEl.textContent='-'+Math.min(59,Math.floor(elapsedMs/1000)); unitEl.textContent='sekunder'}
-    countEl.classList.add('red');
-    return;
+function renderCountdown(diffSec){
+  if(diffSec<0 && postDepartureEndMs && Date.now()<postDepartureEndMs){
+    const passed=Math.min(59, Math.max(1, Math.floor((Date.now()-nextDeparture.getTime())/1000)));
+    labelEl.textContent='Avgång passerad'; countEl.textContent='-'+passed; unitEl.textContent='sekunder'; countEl.classList.add('red'); return;
   }
   labelEl.textContent='Tid kvar';
-  const sec=Math.max(0,Math.ceil(diffMs/1000));
-  if(sec<120){countEl.textContent=sec; unitEl.textContent='sekunder'}
-  else{countEl.textContent=Math.ceil(diffMs/60000); unitEl.textContent='minuter'}
-  countEl.classList.toggle('red', diffMs<=300000);
+  const abs=Math.max(0,diffSec);
+  if(abs<120){countEl.textContent=abs; unitEl.textContent='sekunder'}
+  else {countEl.textContent=Math.floor(abs/60); unitEl.textContent='minuter'}
+  countEl.classList.toggle('red', abs<=300);
 }
 function updateTime(){
-  const now=new Date();
-  const nowMs=now.getTime();
-  clockEl.textContent=fmtClock(now);
+  const now=new Date(); clockEl.textContent=fmtClock(now);
   if(!nextDeparture){countEl.textContent='--'; unitEl.textContent='minuter'; return}
-  const diffMs=nextDeparture.getTime()-nowMs;
-  triggerAlarms(diffMs);
-  if(diffMs<=0 && nowMs>=nextDeparture.getTime()+60000){
-    // Vid minutgränsen hämtas nästa avgång. Vid nätfel begränsas återförsök till var 5:e sekund.
-    if(nowMs-lastSwitchFetchAttemptMs>=5000){lastSwitchFetchAttemptMs=nowMs; getDeparture(true)}
-    lastDiffMs=diffMs;
-    return;
-  }
-  renderCountdown(diffMs);
-  lastDiffMs=diffMs;
+  const diffSec=Math.floor((nextDeparture.getTime()-now.getTime())/1000);
+  triggerAlarms(diffSec);
+  if(diffSec<0 && postDepartureEndMs && Date.now()>=postDepartureEndMs){getDeparture(true); lastDiffSec=diffSec; return}
+  renderCountdown(diffSec);
+  lastDiffSec=diffSec;
 }
 function setup(){
   el('testFive').onclick=()=>playFiveMinuteAlarm(); el('testDeparture').onclick=()=>playDepartureAlarm(); el('settingsBtn').onclick=()=>settingsEl.classList.toggle('open');
   dayBtn.onclick=()=>applyTheme('day'); nightBtn.onclick=()=>applyTheme('night'); autoBtn.onclick=()=>applyTheme('auto');
-  routeSelectEl.onchange=()=>{routeId=parseInt(routeSelectEl.value,10); localStorage.setItem('bpd_routeid',routeId); currentAnnouncementKey=''; postDepartureEndMs=0; lastDiffMs=null; lastSwitchFetchAttemptMs=0; getDeparture(true)};
+  routeSelectEl.onchange=()=>{routeId=parseInt(routeSelectEl.value,10); localStorage.setItem('bpd_routeid',routeId); currentAnnouncementKey=''; postDepartureEndMs=0; lastDiffSec=null; getDeparture(true)};
   el('wakeBtn').onclick=async()=>{try{if('wakeLock'in navigator){wakeLock=await navigator.wakeLock.request('screen'); el('wakeBtn').textContent='Skärm vaken ✓'}}catch(e){console.warn(e)}};
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible') getDeparture()});
   if(window.matchMedia){window.matchMedia('(prefers-color-scheme: light)').addEventListener?.('change',()=>{if((localStorage.getItem('bpd_theme')||'night')==='auto') applyTheme('auto')})}
