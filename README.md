@@ -1,11 +1,14 @@
-# BluePeterDeparture v2.6.1
+# BluePeterDeparture v2.7
 
-Korrigerad ljudversion byggd direkt på den fungerande v2.5-layouten och v2.5-logiken.
+Driftkandidat byggd vidare på v2.6.1 med fyra avgränsade korrigeringar:
 
-- `short.wav` används för **Test 5 min** och det skarpa 5-minuterslarmet.
-- `sound.wav` används för **Test avgång** och det skarpa avgångslarmet.
-- Ledväljare, responsiv layout, Dag/Natt/Auto och Skärm vaken är oförändrade från v2.5.
-- Larmflaggorna återställs bara när avgången faktiskt ändras, inte vid 30-sekundersuppdateringen.
-- Synlig version: `⚓ BluePeterDeparture v2.6.1`.
+- 5-minuterslarmet ljuder när displayen växlar från **6 till 5 minuter** (vid 5:59 kvar), så ljud och visning följs åt.
+- **Auto** är borttaget. Endast **Dag** och **Natt** finns och senaste manuella val sparas.
+- **Skärm vaken** har robustare Wake Lock-logik, visar ✓ endast när låset faktiskt är aktivt och försöker återaktivera låset när appen kommer tillbaka i förgrunden.
+- Vid smalare fönster ligger status, testknappar, Skärm vaken och Inställningar kvar i layouten och ska inte försvinna.
 
-Ladda upp samtliga sex filer till samma rotmapp på GitHub Pages.
+Ljuden är oförändrade från v2.6.1:
+- `short.wav` = 5-minuterssignal
+- `sound.wav` = avgångssignal
+
+Synlig version: `⚓ BluePeterDeparture v2.7`.
