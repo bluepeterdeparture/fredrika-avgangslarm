@@ -1,10 +1,10 @@
-# BluePeterDeparture v2.8
+# BluePeterDeparture v2.8.1
 
-Byggd direkt på v2.7 med endast två avgränsade ändringar:
+Mindre visuell korrigering byggd direkt på v2.8.
 
-- **5-minuterslarmet går exakt 300 sekunder före avgång.** Triggern känner av passagen av 300-sekundersgränsen, så larmet tappas inte om en enskild sekund missas.
-- En **mycket diskret Blue Peter-signalflagga** ligger som vattenstämpel bakom nedräkningen. Den är separat nedtonad för Dag och Natt och påverkar inte kontroller eller läsbarhet.
+- Blue Peter-flaggan i huvudfältet har gjorts något tydligare, men ska fortfarande uppfattas som en diskret vattenstämpel.
+- Dag- och nattläge har separata nivåer så att flaggan kan upptäckas utan att konkurrera med nedräkningen.
+- Larm, ljudfiler, tidtabellslogik, ledväljare, Skärm vaken, Dag/Natt och responsiv layout är oförändrade från v2.8.
+- 5-minuterslarmet ligger kvar på exakt 300 sekunder före avgång.
 
-Allt annat från v2.7 är lämnat orört, inklusive ljudfiler, Dag/Natt, Skärm vaken, ledväljare, turlistehämtning och responsiv layout.
-
-Synlig version: `⚓ BluePeterDeparture v2.8`.
+Synlig version: ⚓ BluePeterDeparture v2.8.1
