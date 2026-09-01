@@ -1,4 +1,4 @@
-# BluePeterDeparture v2.8.1
+# BluePeterDeparture v2.8.2
 
 Mindre visuell korrigering byggd direkt på v2.8.
 
@@ -7,4 +7,10 @@ Mindre visuell korrigering byggd direkt på v2.8.
 - Larm, ljudfiler, tidtabellslogik, ledväljare, Skärm vaken, Dag/Natt och responsiv layout är oförändrade från v2.8.
 - 5-minuterslarmet ligger kvar på exakt 300 sekunder före avgång.
 
-Synlig version: ⚓ BluePeterDeparture v2.8.1
+Synlig version: ⚓ BluePeterDeparture v2.8.2
+
+
+## v2.8.2
+- Daglägets Blue Peter-vattenstämpel är oförändrad.
+- Nattlägets vattenstämpel har fått något högre kontrast.
+- Ingen funktionell logik, ljudfil, ledväljare eller Wake Lock har ändrats.

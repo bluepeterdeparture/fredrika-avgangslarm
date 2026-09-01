@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-512.png" />
   <link rel="icon" href="icon-512.png" />
-  <title>BluePeterDeparture v2.8.1</title>
+  <title>BluePeterDeparture v2.8.2</title>
   <style>
     :root{
       --bg:#06162b; --panel:#0b213d; --panel2:#102b4c; --text:#f8fbff; --muted:#aac2dc;
@@ -31,11 +31,13 @@
     main{min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(190px,.55fr);gap:clamp(7px,1.2vw,15px);overflow:hidden}
     .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);min-height:0}
     .count-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(8px,1.5vw,22px);overflow:hidden;position:relative}
-    /* v2.8.1: diskret men synlig Blue Peter-vattenstämpel. */
+    /* v2.8.2: dagläge oförändrat; nattläge något tydligare Blue Peter-vattenstämpel. */
     .count-card:before{content:"";position:absolute;left:50%;top:50%;width:min(52%,46vmin);aspect-ratio:1;transform:translate(-50%,-50%);background:#0057b8;border-radius:2.5%;opacity:.060;pointer-events:none}
     .count-card:after{content:"";position:absolute;left:50%;top:50%;width:min(25%,22vmin);aspect-ratio:1;transform:translate(-50%,-50%);background:var(--panel);opacity:.94;pointer-events:none}
     body.day .count-card:before{opacity:.055}
     body.day .count-card:after{opacity:.92}
+    body.night .count-card:before{opacity:.105}
+    body.night .count-card:after{opacity:.88}
     .count-card>div{position:relative;z-index:1}
     .label{font-size:clamp(14px,1.8vw,26px);font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center}
     .count{font-size:clamp(86px,18vw,220px);font-weight:950;line-height:.84;font-variant-numeric:tabular-nums;color:var(--green);text-align:center;letter-spacing:-.065em;margin:.04em 0}
@@ -132,7 +134,7 @@
       </section>
     </aside>
   </main>
-  <footer>⚓ BluePeterDeparture v2.8.1</footer>
+  <footer>⚓ BluePeterDeparture v2.8.2</footer>
 </div>
 <audio id="fiveAudio" preload="auto" playsinline src="short.wav"></audio>
 <audio id="departureAudio" preload="auto" playsinline src="sound.wav"></audio>
