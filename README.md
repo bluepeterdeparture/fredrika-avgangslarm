@@ -1,14 +1,10 @@
-# BluePeterDeparture v2.7
+# BluePeterDeparture v2.8
 
-Driftkandidat byggd vidare på v2.6.1 med fyra avgränsade korrigeringar:
+Byggd direkt på v2.7 med endast två avgränsade ändringar:
 
-- 5-minuterslarmet ljuder när displayen växlar från **6 till 5 minuter** (vid 5:59 kvar), så ljud och visning följs åt.
-- **Auto** är borttaget. Endast **Dag** och **Natt** finns och senaste manuella val sparas.
-- **Skärm vaken** har robustare Wake Lock-logik, visar ✓ endast när låset faktiskt är aktivt och försöker återaktivera låset när appen kommer tillbaka i förgrunden.
-- Vid smalare fönster ligger status, testknappar, Skärm vaken och Inställningar kvar i layouten och ska inte försvinna.
+- **5-minuterslarmet går exakt 300 sekunder före avgång.** Triggern känner av passagen av 300-sekundersgränsen, så larmet tappas inte om en enskild sekund missas.
+- En **mycket diskret Blue Peter-signalflagga** ligger som vattenstämpel bakom nedräkningen. Den är separat nedtonad för Dag och Natt och påverkar inte kontroller eller läsbarhet.
 
-Ljuden är oförändrade från v2.6.1:
-- `short.wav` = 5-minuterssignal
-- `sound.wav` = avgångssignal
+Allt annat från v2.7 är lämnat orört, inklusive ljudfiler, Dag/Natt, Skärm vaken, ledväljare, turlistehämtning och responsiv layout.
 
-Synlig version: `⚓ BluePeterDeparture v2.7`.
+Synlig version: `⚓ BluePeterDeparture v2.8`.

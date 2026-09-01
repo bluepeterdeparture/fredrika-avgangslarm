@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-512.png" />
   <link rel="icon" href="icon-512.png" />
-  <title>BluePeterDeparture v2.7</title>
+  <title>BluePeterDeparture v2.8</title>
   <style>
     :root{
       --bg:#06162b; --panel:#0b213d; --panel2:#102b4c; --text:#f8fbff; --muted:#aac2dc;
@@ -30,7 +30,13 @@
     .clock{font-size:clamp(36px,5.4vw,64px);font-weight:950;color:var(--green);font-variant-numeric:tabular-nums;line-height:1;text-align:right;letter-spacing:.01em;white-space:nowrap}
     main{min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(190px,.55fr);gap:clamp(7px,1.2vw,15px);overflow:hidden}
     .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);min-height:0}
-    .count-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(8px,1.5vw,22px);overflow:hidden}
+    .count-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(8px,1.5vw,22px);overflow:hidden;position:relative}
+    /* v2.8: mycket diskret Blue Peter-vattenstämpel. */
+    .count-card:before{content:"";position:absolute;left:50%;top:50%;width:min(52%,46vmin);aspect-ratio:1;transform:translate(-50%,-50%);background:#0057b8;border-radius:2.5%;opacity:.035;pointer-events:none}
+    .count-card:after{content:"";position:absolute;left:50%;top:50%;width:min(25%,22vmin);aspect-ratio:1;transform:translate(-50%,-50%);background:#fff;opacity:.028;pointer-events:none}
+    body.day .count-card:before{opacity:.024}
+    body.day .count-card:after{opacity:.16}
+    .count-card>div{position:relative;z-index:1}
     .label{font-size:clamp(14px,1.8vw,26px);font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center}
     .count{font-size:clamp(86px,18vw,220px);font-weight:950;line-height:.84;font-variant-numeric:tabular-nums;color:var(--green);text-align:center;letter-spacing:-.065em;margin:.04em 0}
     .count.red{color:var(--red)}
@@ -126,13 +132,13 @@
       </section>
     </aside>
   </main>
-  <footer>⚓ BluePeterDeparture v2.7</footer>
+  <footer>⚓ BluePeterDeparture v2.8</footer>
 </div>
 <audio id="fiveAudio" preload="auto" playsinline src="short.wav"></audio>
 <audio id="departureAudio" preload="auto" playsinline src="sound.wav"></audio>
 <script>
 'use strict';
-const VERSION='v2.7';
+const VERSION='v2.8';
 const API_KEY='24b95262774241ad8dbaf8ab05cf070a';
 const API_URL='https://api.trafikinfo.trafikverket.se/v2/data.json';
 const DEFAULT_ROUTE_ID=19;
@@ -194,12 +200,10 @@ async function getDeparture(force=false){
   finally{isFetching=false}
 }
 function triggerAlarms(diffSec){
-  // 5-minuterslarmet ska följa displayen: när visningen går från 6 till 5 minuter.
-  // Displayen använder Math.floor, så 5 minuter börjar visas vid 5:59 kvar.
-  if(lastDiffSec!==null && diffSec>0 && !fivePlayed){
-    const previousDisplayedMinutes=Math.floor(Math.max(0,lastDiffSec)/60);
-    const currentDisplayedMinutes=Math.floor(Math.max(0,diffSec)/60);
-    if(previousDisplayedMinutes>5 && currentDisplayedMinutes===5){fivePlayed=true; playFiveMinuteAlarm()}
+  // v2.8: 5-minuterslarmet går exakt när 300 sekunder återstår.
+  // Trigga på passage av gränsen så att en enskild missad sekund inte tappar larmet.
+  if(lastDiffSec!==null && lastDiffSec>300 && diffSec<=300 && diffSec>0 && !fivePlayed){
+    fivePlayed=true; playFiveMinuteAlarm()
   }
   if(lastDiffSec!==null && lastDiffSec>0 && diffSec<=0 && !depPlayed){depPlayed=true; postDepartureEndMs=nextDeparture.getTime()+60000; playDepartureAlarm()}
   if(lastDiffSec===null && diffSec<=0 && !depPlayed){depPlayed=true; postDepartureEndMs=nextDeparture.getTime()+60000}
